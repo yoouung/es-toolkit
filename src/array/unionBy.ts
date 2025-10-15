@@ -1,4 +1,5 @@
 import { uniqBy } from './uniqBy.ts';
+import { identity, uniq } from '../index.ts';
 
 /**
  * Creates an array of unique values, in order, from all given arrays using a provided mapping function to determine equality.
@@ -23,5 +24,22 @@ import { uniqBy } from './uniqBy.ts';
  * // Returns [{ id: 1 }, { id: 2 }, { id: 3 }]
  */
 export function unionBy<T, U>(arr1: readonly T[], arr2: readonly T[], mapper: (item: T) => U): T[] {
-  return uniqBy(arr1.concat(arr2), mapper);
+  // return uniqBy(arr1.concat(arr2), mapper);
+
+  // arr1 또는 arr2가 배열 형식이지만 배열이 아닐 경우 early return
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) {
+    return uniq([...arr1, ...arr2]);
+  }
+
+  const flattened: T[] = [];
+
+  for (let i = 0; i < arr1.length; i++) {
+    flattened[i] = arr1[i];
+  }
+
+  for (let i = 0; i < arr2.length; i++) {
+    flattened[i + arr1.length] = arr2[i];
+  }
+
+  return uniqBy(flattened, mapper);
 }
